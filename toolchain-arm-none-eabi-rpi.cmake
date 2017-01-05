@@ -30,19 +30,23 @@ set( CMAKE_OBJCOPY ${TC_PATH}${CROSS_COMPILE}objcopy
 
 #TODO: if(CMAKE_COMPILER_IS_GNUCXX)
 
+set( LINKER_SCRIPT_DIR "${CMAKE_SOURCE_DIR}/ldscripts/arm-none-eabi-rpi" )
+message( STATUS "Linker script directory: " ${LINKER_SCRIPT_DIR} )
+
+set( LINKER_SCRIPT "default.lds" )
+set( MY_C_LINK_FLAGS "${MY_C_LINK_FLAGS} -T ${LINKER_SCRIPT_DIR}/${LINKER_SCRIPT}" )
+
 # Set the CMAKE C flags (which should also be used by the assembler!
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpu=vfp" )
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfloat-abi=hard" )
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv6zk" )
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mtune=arm1176jzf-s" )
+set( MY_C_FLAGS "${MY_C_FLAGS} -mfpu=vfp" )
+set( MY_C_FLAGS "${MY_C_FLAGS} -mfloat-abi=hard" )
+set( MY_C_FLAGS "${MY_C_FLAGS} -march=armv6zk" )
+set( MY_C_FLAGS "${MY_C_FLAGS} -mtune=arm1176jzf-s" )
 
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "" )
-set( CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "" )
+# usually a good idea to use libgcc
+set( MY_C_FLAGS "${MY_C_FLAGS} -lgcc" )
 
-set(LINKER_SCRIPT_DIR "${CMAKE_SOURCE_DIR}/ldscripts/arm-none-eabi-rpi")
-message(STATUS "Linker script directory: " ${LINKER_SCRIPT_DIR})
+set( CMAKE_C_FLAGS "${MY_C_FLAGS}" CACHE STRING "" )
+set( CMAKE_C_LINK_FLAGS "${MY_C_LINK_FLAGS}" CACHE STRING "" )
+set( CMAKE_ASM_FLAGS "${MY_C_FLAGS}" CACHE STRING "" )
+set( CMAKE_ASM_LINK_FLAGS "${MY_C_LINK_FLAGS}" CACHE STRING "" )
 
-set(LINKER_SCRIPT "default.lds")
-# NOTE: CMAKE_EXE_LINKER_FLAGS isn't working for targets with a single source file
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -T ${LINKER_SCRIPT_DIR}/${LINKER_SCRIPT}")
-# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T ${LINKER_SCRIPT_DIR}/${LINKER_SCRIPT}")

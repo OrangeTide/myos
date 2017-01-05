@@ -12,7 +12,7 @@ set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g" )
 set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nostartfiles" )
 
 macro(OBJCOPY_FILE EXE_NAME)
- set(FO ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.bin)
+ set(FO ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.img)
  set(FI ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME})
  message(STATUS ${FO})
  add_custom_command(
