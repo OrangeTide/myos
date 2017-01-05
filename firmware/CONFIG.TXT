@@ -1,0 +1,14 @@
+# framebuffer_ignore_alpha=0
+# framebuffer_swap=0
+
+init_emmc_clock=100000000
+kernel=KERNEL.IMG
+
+disable_overscan=1
+hdmi_group=1
+hdmi_mode=16
+
+gpu_mem=64
+start_x=0
+
+# kernel_address=65536
