@@ -7,7 +7,7 @@ project( myOS C ASM )
 # We had to adjust the CMAKE_C_FLAGS variable in the toolchain file to make sure
 # the compiler would work with CMake's simple program compilation test. So unset
 # it explicitly before re-setting it correctly for our system
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0" )
+set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2" )
 set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g" )
 set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nostartfiles" )
 

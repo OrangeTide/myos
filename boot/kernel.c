@@ -5,6 +5,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "vector.h"
+#include "interrupt.h"
 
 /***
  * error values
@@ -80,6 +82,16 @@ ser_allocate(const char *name, uintptr_t base)
 	return dev;
 }
 
+struct ser_device *
+ser_get_by_index(int idx)
+{
+	if (idx >= ser_device_cnt)
+		return NULL;
+
+	struct ser_device *dev = &ser_device[idx];
+	return dev;
+}
+
 int
 ser_init(const char *name, uintptr_t base)
 {
@@ -142,16 +154,37 @@ ser_write(struct ser_device *dev, size_t n, void *p)
 }
 
 void
+vector_swi(void)
+{
+	// TODO: implement this
+
+	struct ser_device *dev = ser_get_by_index(0);
+	ser_putchar(dev, 'U'); /* DEBUG: user has called SWI */
+}
+
+void
+vector_irq(void)
+{
+	// TODO: implement this
+}
+
+void
+vector_fiq(void)
+{
+	// TODO: implement this
+}
+
+void
 system_main(uint32_t a, uint32_t b, uint32_t c)
 {
-	// TODO: initialize bss
-	ser_device_cnt = 0;
+	disable_fiq();
+	vector_init();
 
 	/* raspi1 */
 	ser_init("uart1", 0x20200000 + 0x00001000);
 	/* TODO: use 0x3F200000 for raspi2 and raspi3 */
 
-	ser_write(&ser_device[0], 13, "Hello World\r\n");
+	ser_write(&ser_device[0], 14, "Hello Potato\r\n");
 
-
+	ser_write(&ser_device[0], 9, "Welcome\r\n");
 }
