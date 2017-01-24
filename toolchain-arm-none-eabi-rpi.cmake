@@ -42,6 +42,9 @@ set( MY_C_FLAGS "${MY_C_FLAGS} -mfloat-abi=hard" )
 set( MY_C_FLAGS "${MY_C_FLAGS} -march=armv6zk" )
 set( MY_C_FLAGS "${MY_C_FLAGS} -mtune=arm1176jzf-s" )
 
+# embedded system & kernel development
+set( MY_C_FLAGS "${MY_C_FLAGS} -nostartfiles" )
+
 # usually a good idea to use libgcc
 set( MY_C_FLAGS "${MY_C_FLAGS} -lgcc" )
 

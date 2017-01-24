@@ -1,0 +1,54 @@
+
+= Calling Convention =
+
+== ARM (A32) ==
+
+r0 to r3 : arguments
+
+
+= System Calls =
+
++---------------------------------------------+
+| SYSCALL / INT 0x80 / svc NN                 |
++---------------------------------------------+
+|                                             |
+|                                             |
++---------------------------------------------+
+|                                             |
+|                                             |
++---------------------------------------------+
+
+AH = 00 Program terminate
+AH = 01 Keyboard input with echo
+AH = 02 Display output
+AH = 03 Auxiliary input (default serial port)
+AH = 04 Auxiliary output
+AH = 05 N/A 
+AH = 06 N/A
+AH = 07 N/A
+AH = 08 N/A
+AH = 09 Print string
+AH = 0A Buffered console input with echo - read line discarding excess
+AH = 0B N/A
+AH = 0C N/A
+AH = 0D Disk reset
+AH = 0E Select disk
+AH = 0F Open file
+AH = 10 
+AH = 11 
+AH = 12 
+AH = 13 
+AH = 14 
+AH = 15 
+AH = 16 
+AH = 17 
+AH = 18 
+AH = 19 
+AH = 1A 
+AH = 1B 
+AH = 1C 
+AH = 1D 
+AH = 1E 
+AH = 1F 
+
+

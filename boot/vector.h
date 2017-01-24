@@ -3,7 +3,7 @@
 
 extern void (*vector_table[8])(void);
 
-void vector_swi(void) __attribute__((interrupt("SWI")));
+void vector_swi(void) __attribute__((naked));
 void vector_irq(void) __attribute__((interrupt("IRQ")));
 void vector_fiq(void) __attribute__((interrupt("FIQ")));
 

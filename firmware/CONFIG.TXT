@@ -11,4 +11,5 @@ hdmi_mode=16
 gpu_mem=64
 start_x=0
 
-# kernel_address=65536
+# done so our kernel and qemu versions both start at 0x10000
+kernel_address=65536

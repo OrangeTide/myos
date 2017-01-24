@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include "vector.h"
 #include "interrupt.h"
+#include "clib.h"
 
 /***
  * error values
@@ -25,6 +26,9 @@
 #define ENOSPC (-28)
 #define EDOM (-33)
 #define ERANGE (-34)
+
+// extern uint32_t rpi_base_io[];
+extern uint32_t uart0_base[];
 
 /***
  * mmio32
@@ -153,13 +157,29 @@ ser_write(struct ser_device *dev, size_t n, void *p)
 	return SUCCESS;
 }
 
+void vector_swi(void) __attribute__((interrupt("SWI")));
 void
 vector_swi(void)
 {
-	// TODO: implement this
+#if 0 // TODO: does not work
+	uint32_t swi_instr;
+	asm volatile ("ldr %0, [lr, #-4]" : "=r" (swi_instr) ); /* read SWI opcode that triggered this exception */
 
-	struct ser_device *dev = ser_get_by_index(0);
-	ser_putchar(dev, 'U'); /* DEBUG: user has called SWI */
+	switch (swi_instr & 0xffffff) { /* mask off so we have only the immediate part of the SWI operation */
+	case 0: // TODO: handle swi #0
+		break;
+	case 1: // TODO: handle swi #1
+		break;
+	case 6: { /* user debug */
+		struct ser_device *dev = ser_get_by_index(0);
+		ser_putchar(dev, 'U');
+		break;
+		}
+	// TODO: ...
+	}
+#endif
+	// This?? asm volatile ("movs pc, lr");
+	// Or this?? asm volatile ("subs pc, r14, #4");
 }
 
 void
@@ -174,17 +194,33 @@ vector_fiq(void)
 	// TODO: implement this
 }
 
+/* a user debug SVC */
+static inline void
+call_swi6(void)
+{
+	asm volatile("svc %0" : : "i"(6) : "r14");
+}
+
 void
 system_main(uint32_t a, uint32_t b, uint32_t c)
 {
+	uint32_t mach_type = c;
 	disable_fiq();
 	vector_init();
 
-	/* raspi1 */
-	ser_init("uart1", 0x20200000 + 0x00001000);
-	/* TODO: use 0x3F200000 for raspi2 and raspi3 */
+	ser_init("uart0", (uintptr_t)&uart0_base);
+
+	char buf[32];
+
+	itoa(buf, mach_type);
+	ser_write(&ser_device[0], 10, "mach_type=");
+	ser_write(&ser_device[0], strlen(buf), buf);
+	ser_write(&ser_device[0], 2, "\r\n");
 
 	ser_write(&ser_device[0], 14, "Hello Potato\r\n");
 
 	ser_write(&ser_device[0], 9, "Welcome\r\n");
+
+	// TODO: doesn't work:
+	// call_swi6();
 }

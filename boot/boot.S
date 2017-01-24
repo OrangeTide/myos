@@ -9,7 +9,7 @@
 // preserves these registers so they may be passed to system_main()
 .globl _start
 _start:
-	// Setup the stack.
+	// Setup a 32K stack. (we know lowest 64K isn't used by CONFIG.TXT)
 	mov sp, #0x8000
  
 	// Clear out bss.
@@ -35,6 +35,7 @@ _start:
 	blx r3
  
 	// halt loop if system_main() ever returns
+.globl halt
 halt:
 	wfe
 	b halt
