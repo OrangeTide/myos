@@ -12,10 +12,18 @@ set( CMAKE_SYSTEM_PROCESSOR     BCM2835 )
 
 # Set a toolchain path. You only need to set this if the toolchain isn't in
 # your system path. Don't forget a trailing path separator!
-set( TC_PATH "${CMAKE_SOURCE_DIR}/tools/gcc-arm-none-eabi-5_4-2016q3/bin/" )
 
-# The toolchain prefix for all toolchain executables
+# launchpad arm-none-eabi
+set( TC_PATH "${CMAKE_SOURCE_DIR}/tools/gcc-arm-none-eabi-5_4-2016q3/bin/" )
 set( CROSS_COMPILE arm-none-eabi- )
+
+# linaro arm-eabi
+# set( TC_PATH "${CMAKE_SOURCE_DIR}/tools/gcc-linaro-6.2.1-2016.11-x86_64_arm-eabi/bin/" )
+# set( CROSS_COMPILE arm-eabi- )
+
+# typical crosstool-ng installation
+# set( TC_PATH "$ENV{HOME}/x-tools/arm-unknown-eabi/bin/" )
+# set( CROSS_COMPILE arm-unknown-eabi- )
 
 # specify the cross compiler. We force the compiler so that CMake doesn't
 # attempt to build a simple test program as this will fail without us using
@@ -37,13 +45,22 @@ set( LINKER_SCRIPT "default.lds" )
 set( MY_C_LINK_FLAGS "${MY_C_LINK_FLAGS} -T ${LINKER_SCRIPT_DIR}/${LINKER_SCRIPT}" )
 
 # Set the CMAKE C flags (which should also be used by the assembler!
+
+# rpi1 settings
+#set( MY_C_FLAGS "${MY_C_FLAGS} -mfpu=vfp" )
+#set( MY_C_FLAGS "${MY_C_FLAGS} -mfloat-abi=hard" )
+#set( MY_C_FLAGS "${MY_C_FLAGS} -march=armv6zk" )
+#set( MY_C_FLAGS "${MY_C_FLAGS} -mtune=arm1176jzf-s" )
+
+# rpi2 settings (untested)
 set( MY_C_FLAGS "${MY_C_FLAGS} -mfpu=vfp" )
 set( MY_C_FLAGS "${MY_C_FLAGS} -mfloat-abi=hard" )
-set( MY_C_FLAGS "${MY_C_FLAGS} -march=armv6zk" )
-set( MY_C_FLAGS "${MY_C_FLAGS} -mtune=arm1176jzf-s" )
+set( MY_C_FLAGS "${MY_C_FLAGS} -march=armv7-a" )
+set( MY_C_FLAGS "${MY_C_FLAGS} -mtune=cortex-a7" )
 
 # embedded system & kernel development
 set( MY_C_FLAGS "${MY_C_FLAGS} -nostartfiles" )
+set( MY_C_FLAGS "${MY_C_FLAGS} -ffreestanding" )
 
 # usually a good idea to use libgcc
 set( MY_C_FLAGS "${MY_C_FLAGS} -lgcc" )

@@ -1,0 +1,27 @@
+== How To Use GDB ==
+
+=== Useful Commands ===
+
+backtrace full: Complete backtrace with local variables
+up, down, frame: Move through frames
+watch: Suspend the process when a certain condition is met
+set print pretty on: Prints out prettily formatted C source code
+set logging on: Log debugging session to show to others for support
+set print array on: Pretty array printing
+finish: Continue till end of function
+enable and disable: Enable/disable breakpoints
+tbreak: Break once, and then remove the breakpoint
+where: Line number currently being executed
+info locals: View all local variables
+info args: View all function arguments
+info registers: View CPU registers
+list: view source
+rbreak: break on function matching regular expression
+t a a bt: Use command on all threads (thread apply all backtrace)
+
+=== Textual User Interface ===
+
+Start with
+	gdb -tui
+or type C-x C-a
+

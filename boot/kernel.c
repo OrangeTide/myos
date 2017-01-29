@@ -1,13 +1,9 @@
-//
-// raspi1 peripheral base address : 0x20000000
-// raspi2/raspi3 peripheral base address : 0x3F000000
-//
-
 #include <stddef.h>
 #include <stdint.h>
 #include "vector.h"
 #include "interrupt.h"
 #include "clib.h"
+#include "exmode.h"
 
 /***
  * error values
@@ -26,6 +22,10 @@
 #define ENOSPC (-28)
 #define EDOM (-33)
 #define ERANGE (-34)
+
+/* System Calls */
+
+#define SYS_PUTCHAR (6)
 
 // extern uint32_t rpi_base_io[];
 extern uint32_t uart0_base[];
@@ -157,12 +157,15 @@ ser_write(struct ser_device *dev, size_t n, void *p)
 	return SUCCESS;
 }
 
-void vector_swi(void) __attribute__((interrupt("SWI")));
-void
-vector_swi(void)
+/** VECTORS **/
+
+void __attribute__((interrupt("SWI")))
+vector_swi(int r0, int r1, int r2, int r3)
 {
-#if 0 // TODO: does not work
 	uint32_t swi_instr;
+
+	// thumb: asm volatile ("ldrb %0, [lr, #-2]" : "=r" (int_vector));
+
 	asm volatile ("ldr %0, [lr, #-4]" : "=r" (swi_instr) ); /* read SWI opcode that triggered this exception */
 
 	switch (swi_instr & 0xffffff) { /* mask off so we have only the immediate part of the SWI operation */
@@ -170,18 +173,16 @@ vector_swi(void)
 		break;
 	case 1: // TODO: handle swi #1
 		break;
-	case 6: { /* user debug */
+	case SYS_PUTCHAR: { /* putchar */
 		struct ser_device *dev = ser_get_by_index(0);
-		ser_putchar(dev, 'U');
+		ser_putchar(dev, r0);
 		break;
 		}
 	// TODO: ...
 	}
-#endif
-	// This?? asm volatile ("movs pc, lr");
-	// Or this?? asm volatile ("subs pc, r14, #4");
 }
 
+#if 0
 void
 vector_irq(void)
 {
@@ -193,18 +194,45 @@ vector_fiq(void)
 {
 	// TODO: implement this
 }
+#endif
 
-/* a user debug SVC */
-static inline void
-call_swi6(void)
+extern uint32_t vector_start[];
+extern uint32_t vector_end[];
+extern uint32_t vector_dest[];
+
+void
+vector_init(void)
 {
-	asm volatile("svc %0" : : "i"(6) : "r14");
+	struct vector_block { uint32_t x[16 /* vector_end - vector_start */]; }
+	*src = (void*)vector_start, *dst = (void*)vector_dest;
+	*dst = *src;
+}
+
+/** MAIN **/
+
+/* a system call macro */
+#define svc(code, r0, r1, r2, r3) asm volatile ("mov r0, %0\n\tmov r1, %1\n\tmov r2, %2\n\tmov r3, %3\n\tsvc %4" : : "r"(r0), "r"(r1), "r"(r2), "r"(r3), "I"(code) : "r14", "r0", "r1");
+
+/* putchar SVC */
+static __attribute__((noinline))
+void
+call_putchar(int r0)
+{
+	svc(SYS_PUTCHAR, r0, 0, 0, 0);
+}
+
+static inline uint32_t
+get_cpsr(void)
+{
+	uint32_t result;
+	asm volatile("msr cpsr, %0" : "=r" (result));
+	return result;
 }
 
 void
 system_main(uint32_t a, uint32_t b, uint32_t c)
 {
-	uint32_t mach_type = c;
+	uint32_t cp15 = c;
 	disable_fiq();
 	vector_init();
 
@@ -212,15 +240,28 @@ system_main(uint32_t a, uint32_t b, uint32_t c)
 
 	char buf[32];
 
-	itoa(buf, mach_type);
-	ser_write(&ser_device[0], 10, "mach_type=");
+	asm volatile("mrc p15,0,%0,c1,c0,0" : "=r"(cp15) ::);
+
+	itox(buf, cp15);
+	ser_write(&ser_device[0], 7, "\r\ncp15=");
+	ser_write(&ser_device[0], strlen(buf), buf);
+	ser_write(&ser_device[0], 2, "\r\n");
+
+	uint32_t status = get_cpsr(); // & MODE_MASK;
+	itox(buf, status);
+	ser_write(&ser_device[0], 5, "cpsr=");
 	ser_write(&ser_device[0], strlen(buf), buf);
 	ser_write(&ser_device[0], 2, "\r\n");
 
 	ser_write(&ser_device[0], 14, "Hello Potato\r\n");
 
-	ser_write(&ser_device[0], 9, "Welcome\r\n");
+	/* call a series of system calls */
+	call_putchar('U');
+	call_putchar('s');
+	call_putchar('e');
+	call_putchar('r');
+	call_putchar('\n');
 
-	// TODO: doesn't work:
-	// call_swi6();
+	ser_write(&ser_device[0], 9, "Welcome\r\n");
+	// will halt if we return
 }

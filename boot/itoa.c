@@ -22,6 +22,30 @@ itoa(char *s, long n)
 		*(--p) = x;
 	} while (n);
 }
+
+/* output an unsigned integer as a hexadecimal string */
+void
+itox(char *s, unsigned long n)
+{
+	char *p = s;
+	int m = n;
+	do {
+		m >>= 4;
+		p++;
+	} while (m);
+	*p = 0;
+
+	do {
+		unsigned char x = n & 15;
+
+		if (x < 10)
+			x = x + '0';
+		else
+			x = x - 10 + 'A';
+		n >>= 4;
+		*(--p) = x;
+	} while (n);
+}
 #if 0 // TEST CODE
 
 #include <stdlib.h>

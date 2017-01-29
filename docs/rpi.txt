@@ -1,0 +1,2 @@
+RPi1	Broadcom BCM2835 SoC - 700 MHz 32-bit single-core ARM1176JZF-S 
+RPi2	Broadcom BCM2836 SoC - 900 MHz 32-bit quad-core ARM Cortex-A7 

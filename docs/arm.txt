@@ -1,0 +1,45 @@
+== General Registers ==
+
+	Name    Number	APCS Role
+	----	------	---------
+	a1      0	argument 1 / integer result / scratch register
+	a2      1	argument 2 / scratch register
+	a3      2	argument 3 / scratch register
+	a4      3	argument 4 / scratch register
+
+	v1      4	register variable
+	v2      5	register variable
+	v3      6	register variable
+	v4      7	register variable
+	v5      8	register variable
+
+	sb/v6   9	static base / register variable
+	sl/v7   10	stack limit / stack chunk handle / reg. variable
+	fp      11	frame pointer
+	ip      12	scratch register / new-sb in inter-link-unit calls
+	sp      13	lower end of current stack frame
+	lr      14	link address / scratch register
+	pc      15	program counter
+
+== The APCS in Non-User ARM Modes ==
+
+There are some consequences of the ARM's architecture which, while not explicit 
+in the ARM Procedure Call Standard, need to be understood by implementors of 
+code intended to run in the ARM's SVC and IRQ modes.
+
+An IRQ corrupts r14_irq, so IRQ-mode code must run with IRQs off until r14_irq 
+has been saved.
+
+A general solution to this problem is to enter and exit IRQ handlers written in 
+high-level languages via hand-crafted wrappers, which on entry save r14_irq, 
+change mode to SVC, and enable IRQs; and on exit restore the saved r14_irq, IRQ 
+mode and the IRQ-enable state. Thus the handlers themselves run in SVC mode, 
+avoiding the problem in compiled code.
+
+SWIs corrupt r14_svc, so care has to be taken when calling SWIs in SVC mode.
+
+In high-level languages, SWIs are usually called out of line, so it suffices to 
+save and restore r14 in the calling veneer around the SWI. If a compiler can 
+generate in-line SWIs, then it should, of course, also generate code to save 
+and restore r14 in-line around the SWI, unless it is known that the code will 
+not be executed in SVC mode.
